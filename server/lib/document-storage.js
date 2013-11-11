@@ -75,11 +75,11 @@ DocumentStorage.prototype.length= function () {
  */
 DocumentStorage.prototype.insert = function (document) {
 
-	if (documentIndexMap[id] !== "undefined") {
+	if (typeof documentIndexMap[document.attachmentId] !== "undefined") {
 		return false;
 	}
 
-	documentIndexMap[documents.length] = document.AttachmentId;
+	documentIndexMap[documents.length] = document.attachmentId;
 	documents.push(document);
 
 	return true;
@@ -100,6 +100,26 @@ DocumentStorage.prototype.delete = function (id) {
 
 	documents.splice(documentIndexMap[id], 1);
 	delete documentIndexMap[id];
+
+	return true;
+};
+
+
+
+/**
+ * Updates the document with the given id
+ * @param  {mixed} id              id of the document to update
+ * @param  {object} updatedDocument updatedDocument object
+ * @return {boolean}                 returns true on success and false on failure
+ */
+DocumentStorage.prototype.update = function (id, updatedDocument) {
+	var docIndex = documentIndexMap[id];
+
+	if (typeof docIndex === "undefined" || docIndex === false) {
+		return false;
+	}
+
+	documents[documentIndexMap[id]] = updatedDocument;
 
 	return true;
 };

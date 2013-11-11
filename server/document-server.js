@@ -19,7 +19,7 @@ var express = require('express'),
 app.use(express.bodyParser());
 
 /**
- * Base URL GET Request - /
+ * Base URL GET Request - /documents
  *
  * Returns list of all documents
  *
@@ -27,7 +27,7 @@ app.use(express.bodyParser());
  * @param  {object} res express response object
  * @return void
  */
-app.get('/', function(req, res) {
+app.get('/documents', function(req, res) {
   res.json(documentStorage.getAll());
 });
 
@@ -48,7 +48,7 @@ app.get('/download.html', function(req, res) {
 });
 
 /**
- * Document GET Request - /document/id
+ * Document GET Request - /documents/id
  *
  * Returns the document with the particular id,
  * 404 if the document is not found
@@ -57,20 +57,20 @@ app.get('/download.html', function(req, res) {
  * @param  {object} res express response object
  * @return void
  */
-app.get('/document/:id', function(req, res) {
+app.get('/documents/:id', function(req, res) {
 
   var doc = documentStorage.get(req.params.id);
 
   if(doc === false) {
     res.statusCode = 404;
-    return res.send('Error 404: No quote found');
+    return res.send('Error 404: No document with the given id found');
   }
 
   res.json(doc);
 });
 
 /**
- * Document POST Request - /document
+ * Document POST Request - /documents
  *
  * Handles document post request.
  * Creates a new document and tries to insert into document storage.
@@ -79,13 +79,13 @@ app.get('/document/:id', function(req, res) {
  * @param  {object} res express response object
  * @return void
  */
-app.post('/document', function(req, res) {
+app.post('/documents', function(req, res) {
 
   // Check post syntax
-  if(!req.body.hasOwnProperty('attachment_id') ||
-    !req.body.hasOwnProperty('file_name') ||
-    !req.body.hasOwnProperty('date_added') ||
-    !req.body.hasOwnProperty('file_size')) {
+  if(!req.body.hasOwnProperty('attachmentId') ||
+    !req.body.hasOwnProperty('fileName') ||
+    !req.body.hasOwnProperty('dateAdded') ||
+    !req.body.hasOwnProperty('fileSize')) {
 
     res.statusCode = 400;
     return res.send('Error 400: Post syntax incorrect.');
@@ -93,10 +93,10 @@ app.post('/document', function(req, res) {
 
   // Create new document object
   var newDocument= {
-    attachmentId : req.body.attachment_id,
-    fileName : req.body.file_name,
-    dateAdded: req.body.date_added,
-    fileSize: req.body.file_size
+    attachmentId : req.body.attachmentId,
+    fileName : req.body.fileName,
+    dateAdded: req.body.dateAdded,
+    fileSize: req.body.fileSize
   };
 
   // Check if the attachment id is unique
@@ -108,7 +108,7 @@ app.post('/document', function(req, res) {
 
   // Try to insert the new document
   if (documentStorage.insert(newDocument)) {
-    res.json(true);
+    res.json(newDocument);
   } else {
     res.statusCode = 400;
     return res.send('Error 400: Failed to insert new document.');
@@ -116,9 +116,55 @@ app.post('/document', function(req, res) {
 
 });
 
+/**
+ * Document PUT Request - /documents
+ *
+ * Handles document put request
+ * Updates the document with the given id
+ *
+ * @param  {object} req express request object
+ * @param  {object} res express response object
+ * @return void
+ */
+app.put('/documents/:id', function (req, res) {
+    var attachmentId = req.params.id;
+
+    // Check post syntax
+    if(!req.body.hasOwnProperty('attachmentId') ||
+      !req.body.hasOwnProperty('fileName') ||
+      !req.body.hasOwnProperty('dateAdded') ||
+      !req.body.hasOwnProperty('fileSize')) {
+
+      res.statusCode = 400;
+      return res.send('Error 400: Post syntax incorrect.');
+    }
+
+    if (attachmentId != req.body.attachmentId) {
+      res.statusCode = 400;
+      return res.send('Error 400: Post syntax incorrect. It is not possible to update the id of the documents');
+    }
+
+
+    // Create new document object
+    var newDocument= {
+      attachmentId : req.body.attachmentId,
+      fileName : req.body.fileName,
+      dateAdded: req.body.dateAdded,
+      fileSize: req.body.fileSize
+    };
+
+    // Try to insert the new document
+    if (documentStorage.update(attachmentId, newDocument)) {
+      res.json(newDocument);
+    } else {
+      res.statusCode = 400;
+      return res.send('Error 400: Failed to update the document');
+    }
+
+});
 
 /**
- * Document DELETE Request - /document/id
+ * Document DELETE Request - /documents/id
  *
  * Handles document delete request.
  * Deletes the document with the given id.
@@ -127,7 +173,7 @@ app.post('/document', function(req, res) {
  * @param  {object} res express response object
  * @return void
  */
-app.delete('/document/:id', function(req, res) {
+app.delete('/documents/:id', function(req, res) {
   res.json(documentStorage.delete(req.params.id));
 });
 

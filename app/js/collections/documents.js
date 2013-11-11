@@ -7,8 +7,9 @@
 define([
 	'underscore',
 	'backbone',
-	'models/document'
-], function (_, Backbone, Document) {
+	'models/document',
+	'config'
+], function (_, Backbone, Document, Config) {
 	'use strict';
 
 	var DocumentsCollection = Backbone.Collection.extend({
@@ -17,7 +18,7 @@ define([
 		model: Document,
 
 		// URL to the REST api
-		url: 'http://localhost:3412/'
+		url: Config.documentServerBaseURL
 	});
 
 	return new DocumentsCollection();

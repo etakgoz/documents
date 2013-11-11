@@ -25,6 +25,9 @@ define([
 			dateAdded: ''
 		},
 
+		// attachment id uniquely defines a document model
+		idAttribute: "attachmentId",
+
 		/**
 		 * Initiliazes the model. Sets the downloadUrl attribute.
 		 * @return {void}
